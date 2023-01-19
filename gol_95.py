@@ -74,9 +74,54 @@ maybe it just
 
 def gol95_cost( params ):
     '''
+    :param params: the ndarray of parameters used to simulate the gol model. (For gol_95, this is 18 parameters)
+    :return: the cost of the gol_95 model
 
-    :param params:
-    :return:
+    This function will:
+        1. Run the simulation with params as the parameters for at least 10 days,
+           so that it is likely to have reached the limit cycle.
+        2. Re-run the simulation, beginning with the values from the final
+           time step of the previous gol_95 simulation
+        3. Compute the period and the cycle-to-cycle standard deviation of the period
+           by calling get_period.
+        4. Compute the cost with the formula cost = (((period - 23.6)/23.6)^2 + sdperiod/23.26)^0.5
     '''
 
+    # Run the simulation with params as the parameters for at least 10 days,
+    # so that it is likely to have reached the limit cycle. (Here each timstep is an hour)
+
+    # Initial conditions
+    M_0 = 0.1
+    P_0_0 = 0.1
+    P_1_0 = 0.1
+    P_2_0 = 0.1
+    P_N_0 = 0.1
+    y0 = (M_0,P_0_0,P_1_0,P_2_0,P_N_0)
+
+
+    # Time points
+    days_to_run = 10
+    t = np.linspace(0,24*days_to_run,24*days_to_run)
+
+    # Run the simulation
+    sol = scipy.integrate.solve_ivp(lambda t,y: gol_95(t,y,params),[0,24*days_to_run],y0,method='RK45',t_eval=t)
+    sol2 = scipy.integrate.odint(gol_95, y0, t, args=(params,))
+
+    print(2)
+
+
+
+
     return
+
+
+
+def main():
+    #Setting up sim Parameters
+
+    gol95_cost()
+
+
+
+if __name__ == '__main__':
+    main()
