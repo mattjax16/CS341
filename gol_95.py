@@ -88,16 +88,15 @@ def gol95_cost( params ):
     '''
 
     # Run the simulation with params as the parameters for at least 10 days,
-    # so that it is likely to have reached the limit cycle. (Here each timstep is an hour)
+    # so that it is likely to have reached the limit cycle. (Here each timestep is an hour)
 
     # Initial conditions
-    M_0 = 1
-    P_0_0 = 1
-    P_1_0 = 1
-    P_2_0 = 1
-    P_N_0 = 1
+    M_0 = 1.9
+    P_0_0 = 0.8
+    P_1_0 = 0.8
+    P_2_0 = 0.8
+    P_N_0 = 0.8
     y0 = (M_0,P_0_0,P_1_0,P_2_0,P_N_0)
-
 
     # Time points
     days_to_run = 10
@@ -116,16 +115,10 @@ def gol95_cost( params ):
                                     t_eval=t)
 
     # Computing the period and the cycle-to-cycle standard deviation of the period
+    period, sdperiod = get_period(sol.t,sol.y[4,:])
+    cost = (((period - 23.6)/23.6)**2 + sdperiod/23.26)**0.5
 
-
-
-
-    print(2)
-
-
-
-
-    return
+    return cost
 
 
 
