@@ -118,6 +118,8 @@ def gol95_cost( params ):
     period, sdperiod = get_period(sol.t,sol.y[4,:])
     cost = (((period - 23.6)/23.6)**2 + sdperiod/23.26)**0.5
 
+    print(cost)
+
     return cost
 
 
