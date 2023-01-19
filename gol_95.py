@@ -42,7 +42,7 @@ def gol_95(t,y,params):
     P_N = y[4]
 
     #Calculating the 5 differential equations
-    dM_dt = v_s * K_I^n/(K_I^n + P_N^n)  -  v_m * M / (K_m + M)
+    dM_dt = v_s * K_I**n/(K_I**n + P_N**n)  -  v_m * M / (K_m + M)
     dP_0_dt = k_s * M  -  V_1*P_0/(K_1+P_0)  +  V_2 * P_1/(K_2+P_1)
     dP_1_dt =  V_1*P_0/(K_1+P_0) - V_2 * P_1/(K_2+P_1) - V_3 * P_1/(K_3+P_1) + V_4*P_2/(K_4+P_2)
     dP_2_dt = V_3 * P_1/(K_3+P_1) - V_4*P_2/(K_4+P_2) - k_1*P_2 + k_2*P_N - v_d * P_2/(K_d+P_2)
@@ -91,11 +91,11 @@ def gol95_cost( params ):
     # so that it is likely to have reached the limit cycle. (Here each timstep is an hour)
 
     # Initial conditions
-    M_0 = 0.1
-    P_0_0 = 0.1
-    P_1_0 = 0.1
-    P_2_0 = 0.1
-    P_N_0 = 0.1
+    M_0 = 1
+    P_0_0 = 1
+    P_1_0 = 1
+    P_2_0 = 1
+    P_N_0 = 1
     y0 = (M_0,P_0_0,P_1_0,P_2_0,P_N_0)
 
 
@@ -105,7 +105,20 @@ def gol95_cost( params ):
 
     # Run the simulation
     sol = scipy.integrate.solve_ivp(lambda t,y: gol_95(t,y,params),[0,24*days_to_run],y0,method='RK45',t_eval=t)
-    sol2 = scipy.integrate.odint(gol_95, y0, t, args=(params,))
+
+    ### TODO Question when is this used
+    # sol2 = scipy.integrate.odeint(gol_95, y0, t, args=(params,))
+
+    # Re-running the simulation, beginning with the values from the final timestep of the previous
+    # gol_95 simulation
+    y0 = sol.y[:,-1]
+    sol = scipy.integrate.solve_ivp(lambda t, y: gol_95(t, y, params), [0, 24 * days_to_run], y0, method='RK45',
+                                    t_eval=t)
+
+    # Computing the period and the cycle-to-cycle standard deviation of the period
+
+
+
 
     print(2)
 
@@ -117,10 +130,29 @@ def gol95_cost( params ):
 
 
 def main():
-    #Setting up sim Parameters
+    # Setting up the gol_95 parameters
+    v_s = 0.76
+    v_m = 0.65
+    K_m = 0.5
+    k_s = 0.38
+    v_d = 0.95
+    k_1 = 1.9
+    k_2 = 1.3
+    K_I = 1
+    K_d = 0.2
+    n = 4
+    K_1 = 2
+    K_2 = 2
+    K_3 = 2
+    K_4 = 2
+    V_1 = 3.2
+    V_2 = 1.58
+    V_3 = 5
+    V_4 = 2.5
+    gol_95_params = (v_s, v_m, K_m, k_s, v_d, k_1, k_2, K_I, K_d, n,
+                     K_1, K_2, K_3, K_4, V_1, V_2, V_3, V_4)
 
-    gol95_cost()
-
+    gol95_cost(gol_95_params)
 
 
 if __name__ == '__main__':
